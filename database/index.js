@@ -43,9 +43,19 @@ const authors = [
     }
 ];
 
-const publications = [{
+const publications = [
+    {
+        id: 1,
+        name: "Chakra",
+        books:["12345ONE"],
      
-
-}];
+    },
+    {
+        id: 2,
+        name: "Vishal",
+        books:["12345TWO"],
+     
+    },
+];
 
 module.exports = {books,authors,publications};
