@@ -44,9 +44,7 @@ const authors = [
 ];
 
 const publications = [{
-    id: 1,
-    name : "chakra",
-    books: ["12345ONE", "12345TWO"],
+     
 
 }];
 

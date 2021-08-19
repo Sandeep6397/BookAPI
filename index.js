@@ -134,4 +134,109 @@ shapeAI.get("/publications/book/:isbn", (req,res) => {
        return res.json({"Error": `No author found for book ${req.params.isbn}`});
    return res.json({"Error": specificPublication});
 });
+
+
+
+/////                                POST
+
+/*
+Route : /book/new
+Description : To add new book
+Parameter : NONE 
+Mathod :POST
+*/ 
+
+shapeAI.post("/book/new", (req,res) =>{
+    const newBook = req.body.newBook;     
+    //const {newBook} = req.body;   //Destructing using ES6
+
+    database.books.push(newBook);
+
+    return res.json({books: database.books, message:"Book was added"});
+});
+
+/*
+Route : /author/new
+Description : To add new author
+Parameter : NONE 
+Mathod :POST
+*/ 
+
+shapeAI.post("/author/new", (req,res) =>{
+    const newAuthor = req.body.newAuthor;     
+    //const {newAuthor} = req.body;   //Destructing using ES6
+
+    database.authors.push(newAuthor);
+
+    return res.json({Authors: database.authors, message:"Author was added"});
+});
+
+/*
+Route : /publication/new
+Description : To add new publication
+Parameter : NONE 
+Mathod :POST
+*/ 
+
+
+shapeAI.post(" ", (req,res) =>{
+    const newPublication = req.body.newPublication;     
+    //const {newAuthor} = req.body;   //Destructing using ES6
+
+    database.publications.push(newPublication);
+
+    return res.json({Publications: database.publications, message:"Publications was added"});
+});
+
+///////////////////////////////UPDATE
+
+/*
+Route : /book/update/
+Description : To update title of book
+Parameter : isbn 
+Mathod :PUT
+*/ 
+
+shapeAI.put("/book/update/:isbn", (req,res) => {
+
+    database.books.forEach((book) =>{
+        if(book.ISBN == req.params.isbn)
+        {
+            book.title = req.body.newTitle;
+            return;
+        }
+        return res.json({books:database.books});
+    });
+});
+
+/*
+Route : /book/author/update
+Description : To update Author of book
+Parameter : isbn 
+Mathod :PUT
+*/ 
+
+shapeAI.put("/book/author/update/:isbn",  (req,res) => {
+    //update book database
+
+    database.books.forEach((book) =>{
+        if(book.ISBN ==  req.params.isbn)
+        {
+            return book.authors.push(req.body.newAuthor);
+        }
+    });
+
+    //update author database
+    database.authors.forEach((auth) =>{
+
+        if(auth.id === req.body.newAuthor)
+        {
+            return auth.books.push(req.params.isbn);
+        }
+
+    });
+    return res.json({books:database.books, authors: database.authors , message : "New Author was added"});
+
+
+});
 shapeAI.listen(3000, () => console.log("Server is running"));
