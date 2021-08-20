@@ -359,13 +359,13 @@ shapeAI.delete("/book/delete", async(req,res) =>{
 
     //const dbooks = database.books.filter((book) => book.ISBN != req.params.isbn ); ///using parameter from url
     // const dbooks = database.books.filter((book) => book.ISBN != req.body.isbn ); ///using body
-    const dbooks = await BookModel.remove({ISBN: req.body.isbn});
+    const dbooks = await BookModel.findOneAndDelete ({ISBN: req.body.isbn});
     // database.books = dbooks;
     return res.json({ books: dbooks, message: "Deleted succuessfully"});
 
 });
 
-/*
+/* 
 Route : /book/delete/author
 Description : To delete a author from a book 
 Parameter : isbn, authorid
@@ -387,7 +387,21 @@ shapeAI.delete("/book/delete/author/:isbn/:authorid", async(req,res) =>{
 
     //???????????????????? Using Mongo
     //update book database            /////wrong
-    const deleteBook = await BookModel.remove({authors: req.params.authorid});
+    const updateBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN: req.params.authorid
+        },
+        {
+            $pull:{
+                authors:parseInt(req.params.authorid),
+            }
+        },
+        {
+            new:true,
+        }
+
+    );
+
 
     //update author database
     // database.authors.forEach((author) => {
@@ -403,8 +417,18 @@ shapeAI.delete("/book/delete/author/:isbn/:authorid", async(req,res) =>{
     //????????????? Using Mongo
 
     //update author database
-    const deleteAuthor = await AuthorModel.remove({id:req.params.authorid});
-    return res.json({ books: deleteBook, authors: deleteAuthor, message: "Deleted succuessfully"});
+    const updateAuthor = await AuthorModel.findOneAndUpdate(
+        {
+            id:parseInt(req.params.authorid),
+        },
+        {
+            books: req.params.isbn,
+        },
+        {
+            new:true,
+        }
+    );
+    return res.json({ books: updateBook, authors: updateAuthor, message: "Deleted succuessfully"});
 });
 
 
