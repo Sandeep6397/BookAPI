@@ -226,26 +226,35 @@ shapeAI.post("/publication/new", async(req,res) =>{
 ///////////////////////////////UPDATE
 
 /*
-Route : /book/update/
+Route : /book/updated/
 Description : To update title of book
 Parameter : isbn 
 Mathod :PUT
 */ 
 
-shapeAI.put("/book/update/:isbn", (req,res) => {
+shapeAI.put("/book/updated/:isbn", async(req,res) => {
 
-    database.books.forEach((book) =>{
-        if(book.ISBN == req.params.isbn)
+    // database.books.forEach((book) =>{
+    //     if(book.ISBN == req.params.isbn)
+    //     {
+    //         book.title = req.body.newTitle;
+    //         return;
+    //     }
+    //     return res.json({books:database.books});
+    // });
+
+    const updateBook = await BookModel.findOneAndUpdate(
         {
-            book.title = req.body.newTitle;
-            return;
-        }
-        return res.json({books:database.books});
-    });
+            ISBN:req.params.isbn,
+        },
+        {
+            title: req.body.Title,
+        },
+        {
+            new:true, // to get updated data
+        });
 
-    // const updateBook = await BookModel.findOneAndUpdate({ISBN:isbn},{title: req.body.update});
-
-    // return res.json({books:updateBook});
+    return res.json({books:updateBook});
 });
 
 /*
@@ -255,28 +264,57 @@ Parameter : isbn
 Mathod :PUT
 */ 
 
-shapeAI.put("/book/author/update/:isbn",  (req,res) => {
-    //update book database
+shapeAI.put("/book/author/update/:isbn", async(req,res) => {
+    // //update book database
 
-    database.books.forEach((book) =>{
-        if(book.ISBN ==  req.params.isbn)
+    // database.books.forEach((book) =>{
+    //     if(book.ISBN ==  req.params.isbn)
+    //     {
+    //         return book.authors.push(req.body.newAuthor);
+    //     }
+    // });
+
+    // //update author database
+    // database.authors.forEach((auth) =>{
+
+    //     if(auth.id === req.body.newAuthor)
+    //     {
+    //         return auth.books.push(req.params.isbn);
+    //     }
+
+    // });
+    // return res.json({books:database.books, authors: database.authors , message : "New Author was added"});
+
+
+    const updateBookAuthor = await BookModel.findOneAndUpdate(
         {
-            return book.authors.push(req.body.newAuthor);
-        }
-    });
-
-    //update author database
-    database.authors.forEach((auth) =>{
-
-        if(auth.id === req.body.newAuthor)
+            ISBN: req.params.isbn,
+        },
         {
-            return auth.books.push(req.params.isbn);
+            $addToSet :{
+                authors:req.body.newAuthor,
+            }
+        },
+        {
+            new:true,
         }
+    )
+    const updateAuthor = await AuthorModel.findOneAndUpdate(
+        {
+            id:req.body.newAuthor,
 
-    });
-    return res.json({books:database.books, authors: database.authors , message : "New Author was added"});
-
-
+        },
+        {
+            $push:{
+                books: req.params.isbn,
+            },
+            
+        },
+        {
+            new:true,
+        }
+    )
+    return res.json({books: updateBookAuthor, authors: updateAuthor , message : "New Author was added"});
 });
 
 /*
