@@ -7,10 +7,10 @@ const mongoose = require("mongoose");
 const database = require("./database/index");
 
 // Model
-const BookModels = require("./database/book"); 
-const AuthorModels = require("./database/author");
-const PublicationModels = require("./database/publication"); 
-const 
+const BookModel = require("./database/book"); 
+const AuthorModel = require("./database/author");
+const PublicationModel = require("./database/publication"); 
+
 
 // Initializing Express
 const shapeAI = express();
@@ -36,8 +36,9 @@ Description : Retrive all book
 Parameter : NONE
 Method : GET
 */ 
-shapeAI.get("/", (req,res) => {
-    return res.json({"Books": database.books});
+shapeAI.get("/", async(req,res) => {
+    const getAllBook =await BookModel.find()
+    return res.json({"Books": getAllBook});
 });
 
 // to Retrive Specific book 
@@ -48,9 +49,11 @@ Description : Retrive Specific book
 Parameter : isbn
 Mathod :GET
 */ 
-shapeAI.get("/isbn/:isbn", (req,res) => {
-    const specificBook = database.books.filter((book) => book.ISBN === req.params.isbn);
-    if(specificBook.length != 0)
+shapeAI.get("/isbn/:isbn", async(req,res) => {
+
+    const specificBook = await BookModel.findOne({ISBN:req.params.isbn})
+    // const specificBook = database.books.filter((book) => book.ISBN === req.params.isbn);
+    if(specificBook)
         return res.json({"Books": specificBook});
     return res.json({"Error": `No book found for ISBN:${req.params.isbn}`});
       
@@ -62,9 +65,10 @@ Description : Retrive Specific book based on category
 Parameter : category
 Mathod :GET
 */ 
-shapeAI.get("/c/:category", (req,res) => {
-    const specificBooks = database.books.filter((book) => book.category.includes(req.params.category));
-    if(specificBooks.length != 0)
+shapeAI.get("/c/:category", async(req,res) => {
+    const specificBooks = await BookModel.findOne({category:req.params.category});
+    // const specificBooks = database.books.filter((book) => book.category.includes(req.params.category));
+    if(specificBooks)
         return res.json({"Books": specificBooks});
     return res.json({"Error": `No book found for Category:${req.params.category}`});
       
@@ -76,8 +80,9 @@ Description : Retrive all the authors
 Parameter : NONE
 Mathod :GET
 */ 
-shapeAI.get("/author", (req,res) => {
-    return res.json({"Authors": database.authors});
+shapeAI.get("/author", async(req,res) => {
+    const allAuthors = await AuthorModel.find();
+    return res.json({"Authors": allAuthors});
 });
 
 /*
@@ -87,12 +92,14 @@ Parameter : id
 Mathod :GET
 */ 
 
-shapeAI.get("/author/:id", (req,res) => {
+shapeAI.get("/author/:id", async (req,res) => {
+    const authors = await AuthorModel.findOne({id : req.params.id})
 
-    const authors = database.authors.filter((auth) => auth.id == req.params.id);
-    if(authors.length == 0)
-        return res.json({"Error": `Author with id = ${req.params.id} does not exits`});
-    return res.json({"Authors": authors });
+    // const authors = database.authors.filter((auth) => auth.id == req.params.id);
+    if(authors)
+        return res.json({"Authors": authors });
+    return res.json({"Error": `Author with id = ${req.params.id} does not exits`});
+    
 });
 
 /*
@@ -102,12 +109,14 @@ Parameter : isbn
 Mathod :GET
 */ 
 
-shapeAI.get("/author/b/:isbn", (req,res) => {
+shapeAI.get("/author/b/:isbn", async(req,res) => {
+    const specificAuthors = await AuthorModel.findOne({books:req.params.isbn});
 
-     const specificAuthors = database.authors.filter((author) => author.books.includes(req.params.isbn));
-     if(specificAuthors.length == 0)
-        return res.json({"Error": `No author found for book ${req.params.id} `});
-    return res.json({"Authors": specificAuthors });
+    //  const specificAuthors = database.authors.filter((author) => author.books.includes(req.params.isbn));
+     if(specificAuthors)
+        return res.json({"Authors": specificAuthors });
+    return res.json({"Error": `No author found for book ${req.params.id} `});
+    
 });  
 
 /*
@@ -117,8 +126,9 @@ Parameter : NONE
 Mathod :GET
 */ 
 
-shapeAI.get("/publications", (req,res)=>{
-    return res.json({"Publications": database.publications});
+shapeAI.get("/publications", async(req,res)=>{
+    const allPublications = await PublicationModel.find();
+    return res.json({"Publications":allPublications});
 })
 
 /*
@@ -128,13 +138,13 @@ Parameter : id
 Mathod :GET
 */ 
 
-shapeAI.get("/publications/b/:id", (req,res)=>{
+shapeAI.get("/publications/b/:id", async(req,res)=>{
 
-    const specificPublication = database.publications.filter((pub) => pub.id == req.params.id);
-    if(specificPublication.length == 0)
-        return res.json({"Error": `Publication with id=${req.params.id} does not exits`});
-
-    return res.json({"Publications": specificPublication[0]});
+    const specificPublication  = await PublicationModel.findOne({id: req.params.id });
+    // const specificPublication = database.publications.filter((pub) => pub.id == req.params.id);
+    if(specificPublication)
+        return res.json({"Publications": specificPublication});
+    return res.json({"Error": `Publication with id=${req.params.id} does not exits`});
 
 });
 
@@ -144,13 +154,15 @@ Description : Retrive list all the authors based on a book isbn
 Parameter : isbn 
 Mathod :GET
 */ 
+/////////////////Not working
+shapeAI.get("/publications/book/:isbn", async(req,res) => {
 
-shapeAI.get("/publications/book/:isbn", (req,res) => {
-
-    const specificPublication = database.publications.filter((pub) => pub.books.includes(req.params.isbn));
-    if(specificPublication.length == 0)
-       return res.json({"Error": `No author found for book ${req.params.isbn}`});
-   return res.json({"Error": specificPublication});
+    const specificPublication = await PublicationModel.find({books:req.params.isbn})
+    // const specificPublication = database.publications.filter((pub) => pub.books.includes(req.params.isbn));
+    if(specificPublication)
+        return res.json({"Publications": specificPublication});
+    return res.json({"Error": `No author found for book ${req.params.isbn}`});
+   
 });
 
 
@@ -164,13 +176,16 @@ Parameter : NONE
 Mathod :POST
 */ 
 
-shapeAI.post("/book/new", (req,res) =>{
-    const newBook = req.body.newBook;     
+shapeAI.post("/book/new", async(req,res) =>{
+    const {newBook} = await req.body;
+    // const newBook = req.body.newBook;     
     //const {newBook} = req.body;   //Destructing using ES6
+    const addNewBook = await BookModel.create(newBook);
 
-    database.books.push(newBook);
+    // database.books.push(addnewBook);
 
-    return res.json({books: database.books, message:"Book was added"});
+
+    return res.json({books:addNewBook, message:"Book was added"});
 });
 
 /*
@@ -180,13 +195,13 @@ Parameter : NONE
 Mathod :POST
 */ 
 
-shapeAI.post("/author/new", (req,res) =>{
+shapeAI.post("/author/new", async(req,res) =>{
     const newAuthor = req.body.newAuthor;     
     //const {newAuthor} = req.body;   //Destructing using ES6
+    const addNewAuthor = await AuthorModel.create(newAuthor);
+    //database.authors.push(addNewAuthor);
 
-    database.authors.push(newAuthor);
-
-    return res.json({Authors: database.authors, message:"Author was added"});
+    return res.json({Authors: addNewAuthor, message:"Author was added"});
 });
 
 /*
@@ -197,13 +212,15 @@ Mathod :POST
 */ 
 
 
-shapeAI.post(" ", (req,res) =>{
+shapeAI.post("/publication/new", async(req,res) =>{
     const newPublication = req.body.newPublication;     
     //const {newAuthor} = req.body;   //Destructing using ES6
 
-    database.publications.push(newPublication);
+    const addNewPublication = await PublicationModel.create(newPublication);
 
-    return res.json({Publications: database.publications, message:"Publications was added"});
+    //database.publications.push(newPublication);
+
+    return res.json({Publications: addNewPublication, message:"Publications was added"});
 });
 
 ///////////////////////////////UPDATE
@@ -225,6 +242,10 @@ shapeAI.put("/book/update/:isbn", (req,res) => {
         }
         return res.json({books:database.books});
     });
+
+    // const updateBook = await BookModel.findOneAndUpdate({ISBN:isbn},{title: req.body.update});
+
+    // return res.json({books:updateBook});
 });
 
 /*
@@ -296,12 +317,13 @@ Parameter : isbn
 Mathod :PUT
 */
 
-shapeAI.delete("/book/delete", (req,res) =>{
+shapeAI.delete("/book/delete", async(req,res) =>{
 
     //const dbooks = database.books.filter((book) => book.ISBN != req.params.isbn ); ///using parameter from url
-    const dbooks = database.books.filter((book) => book.ISBN != req.body.isbn ); ///using body
-    database.books = dbooks;
-    return res.json({ books: database.books, message: "Deleted succuessfully"});
+    // const dbooks = database.books.filter((book) => book.ISBN != req.body.isbn ); ///using body
+    const dbooks = await BookModel.remove({ISBN: req.body.isbn});
+    // database.books = dbooks;
+    return res.json({ books: dbooks, message: "Deleted succuessfully"});
 
 });
 
@@ -312,30 +334,39 @@ Parameter : isbn, authorid
 Mathod :PUT
 */
 
-shapeAI.delete("/book/delete/author/:isbn/:authorid", (req,res) =>{
+shapeAI.delete("/book/delete/author/:isbn/:authorid", async(req,res) =>{
     //update book database 
-    database.books.forEach((book) => {
-        if(book.ISBN == req.params.isbn)
-        {
-            const newAuthorList = book.authors.filter((auth) => auth != parseInt(req.params.authorid)); 
-            book.authors = newAuthorList;
+    // database.books.forEach((book) => {
+    //     if(book.ISBN == req.params.isbn)
+    //     {
+    //         const newAuthorList = book.authors.filter((auth) => auth != parseInt(req.params.authorid)); 
+    //         book.authors = newAuthorList;
 
-            return ;
-        };
+    //         return ;
+    //     };
         
-    });
+    // });
+
+    //???????????????????? Using Mongo
+    //update book database            /////wrong
+    const deleteBook = await BookModel.remove({authors: req.params.authorid});
 
     //update author database
-    database.authors.forEach((author) => {
-        if(author.id == parseInt(req.params.authorid))
-        {
-            const newBookList = author.books.filter((book) => book.ISBN  != req.params.isbn);
-            author.books = newBookList;
-             return
-        };
-        ;
-    });
-    return res.json({ books: database.books, authors: database.authors, message: "Deleted succuessfully"});
+    // database.authors.forEach((author) => {
+    //     if(author.id == parseInt(req.params.authorid))
+    //     {
+    //         const newBookList = author.books.filter((book) => book.ISBN  != req.params.isbn);
+    //         author.books = newBookList;
+    //          return
+    //     };
+    //     ;
+    // });
+
+    //????????????? Using Mongo
+
+    //update author database
+    const deleteAuthor = await AuthorModel.remove({id:req.params.authorid});
+    return res.json({ books: deleteBook, authors: deleteAuthor, message: "Deleted succuessfully"});
 });
 
 
