@@ -1,5 +1,7 @@
+require("dotenv").config(); // To secure our password
 //FrameWork
 const express = require("express");
+const mongoose = require("mongoose"); 
 
 //importing Database
 const database = require("./database/index");
@@ -9,6 +11,16 @@ const shapeAI = express();
 
 // Configuration
 shapeAI.use(express.json());
+ 
+//Establish database connection
+mongoose.connect(process.env.MONGO_URL, 
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        useFindAndModify: false,
+        useCreateIndex: true,
+    },
+).then(() => console.log("Mongoose Connection Successfull")); 
 
 // To get all Books
 
