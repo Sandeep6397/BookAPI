@@ -2,6 +2,7 @@
 //  Initialize express router
 const Router = require("express").Router();
 
+const { Error } = require("mongoose");
 //database Modal
 const BookModel = require("../../database/book");
 
@@ -48,10 +49,16 @@ Mathod :POST
 */ 
 
 Router.post("/new", async(req,res) =>{
-    const {newBook} = await req.body;
-    // const newBook = req.body.newBook;     
-    //const {newBook} = req.body;   //Destructing using ES6
-    const addNewBook = await BookModel.create(newBook);
+    try {
+        const {newBook} = await req.body;
+        // const newBook = req.body.newBook;     
+        //const {newBook} = req.body;   //Destructing using ES6
+        const addNewBook = await BookModel.create(newBook);
+            
+    } catch (error) {
+        
+        return res.json({error:error});
+    }
 
     // database.books.push(addnewBook);
 
